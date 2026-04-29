@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Раздел "Прикол"{% endblock %}
+
+{% block extra_css %}
+.spotlight {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    background: rgba(255, 255, 255, 0.8);
+    transition: opacity 0.1s ease;
+}
+.spotlight.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.fun-container {
+    text-align: center;
+}
+.upload-section {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    margin-bottom: 30px;
+}
+.image-area {
+    position: relative;
+    display: inline-block;
+    cursor: crosshair;
+    max-width: 100%;
+}
+.image-area img {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: var(--radius-lg);
+    user-select: none;
+    -webkit-user-drag: none;
+}
+{% endblock %}
+
+{% block content %}
+<h1>Раздел "Прикол" 📸</h1>
+
+<div class="fun-container">
+    <div class="card upload-section">
+        <h3>Загрузите фото</h3>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <input type="file" name="image" class="form-control" accept="image/*" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Загрузить</button>
+        </form>
+    </div>
+    
+    {% if image %}
+    <div class="card">
+        <h3>Нажмите на фото!</h3>
+        <p style="color: var(--gray-600); margin-bottom: 15px;">Нажимайте в любом месте - появится подсветка</p>
+        <div class="image-area" id="imageArea">
+            <img src="{{ url_for('static', filename='uploads/' + image) }}" id="funImage" draggable="false">
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="spotlight" id="spotlight"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const imageArea = document.getElementById('imageArea');
+const spotlight = document.getElementById('spotlight');
+const funImage = document.getElementById('funImage');
+
+if (imageArea && spotlight) {
+    imageArea.addEventListener('mousedown', function(e) {
+        spotlight.classList.add('active');
+        spotlight.style.top = '0';
+        spotlight.style.left = '0';
+        spotlight.style.width = '100%';
+        spotlight.style.height = '100%';
+    });
+    
+    document.addEventListener('mouseup', function() {
+        spotlight.classList.remove('active');
+    });
+    
+    funImage.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+    });
+    
+    funImage.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+}
+</script>
+{% endblock %}
