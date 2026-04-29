@@ -15,7 +15,7 @@
 .image-area {
     position: relative;
     display: inline-block;
-    cursor: crosshair;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="8" fill="white" opacity="0.8"/></svg>') 10 10, crosshair;
     max-width: 100%;
     overflow: hidden;
 }
@@ -27,25 +27,27 @@
     -webkit-user-drag: none;
     pointer-events: none;
 }
-.splash {
+.slime {
     position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.7);
-    filter: blur(15px);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.9), rgba(240,240,245,0.7));
+    box-shadow: 0 0 15px rgba(255,255,255,0.5), inset 0 0 10px rgba(255,255,255,0.3);
     pointer-events: none;
-    animation: spread 1s ease-out forwards;
+    animation: slimeSpread 3s ease-out forwards;
 }
-@keyframes spread {
+@keyframes slimeSpread {
     0% {
-        transform: scale(0.5);
-        opacity: 0.8;
+        transform: scale(0.3);
+        opacity: 0.9;
     }
-    50% {
-        opacity: 0.6;
+    20% {
+        transform: scale(0.5);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
     }
     100% {
-        transform: scale(3);
+        transform: scale(2.5);
         opacity: 0;
+        border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
     }
 }
 {% endblock %}
@@ -66,9 +68,9 @@
     
     {% if image %}
     <div class="card">
-        <h3>Нажимайте на фото!</h3>
-        <p style="color: var(--gray-600); margin-bottom: 15px;">Нажимайте в любом месте - появится пятно</p>
-        <div class="image-area" id="imageArea" style="position: relative;">
+        <h3>Ведите по фото! 🦠</h3>
+        <p style="color: var(--gray-600); margin-bottom: 15px;">Нажимайте и ведите - оставляйте слизь</p>
+        <div class="image-area" id="imageArea">
             <img src="{{ url_for('static', filename='uploads/' + image) }}" id="funImage" draggable="false">
         </div>
     </div>
@@ -79,34 +81,93 @@
 {% block extra_js %}
 <script>
 const imageArea = document.getElementById('imageArea');
+let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
 
-function createSplash(x, y) {
-    const splash = document.createElement('div');
-    splash.className = 'splash';
+function createSlime(x, y) {
+    const slime = document.createElement('div');
+    slime.className = 'slime';
     
-    const size = 50 + Math.random() * 50;
-    splash.style.width = size + 'px';
-    splash.style.height = size + 'px';
-    splash.style.left = (x - size/2) + 'px';
-    splash.style.top = (y - size/2) + 'px';
+    const size = 40 + Math.random() * 30;
+    slime.style.width = size + 'px';
+    slime.style.height = size + 'px';
+    slime.style.left = (x - size/2) + 'px';
+    slime.style.top = (y - size/2) + 'px';
     
-    imageArea.appendChild(splash);
+    imageArea.appendChild(slime);
     
     setTimeout(() => {
-        splash.remove();
-    }, 1000);
+        slime.remove();
+    }, 3000);
 }
 
 if (imageArea) {
-    imageArea.addEventListener('click', function(e) {
+    imageArea.addEventListener('mousedown', function(e) {
+        isDrawing = true;
+        const rect = imageArea.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        createSlime(x, y);
+        lastX = x;
+        lastY = y;
+    });
+    
+    imageArea.addEventListener('mousemove', function(e) {
+        if (!isDrawing) return;
+        
         const rect = imageArea.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
-        createSplash(x, y);
+        const distance = Math.sqrt(Math.pow(x - lastX, 2) + Math.pow(y - lastY, 2));
         
-        setTimeout(() => createSplash(x + 10, y + 10), 100);
-        setTimeout(() => createSplash(x - 10, y + 5), 200);
+        if (distance > 15) {
+            createSlime(x, y);
+            lastX = x;
+            lastY = y;
+        }
+    });
+    
+    imageArea.addEventListener('mouseup', function() {
+        isDrawing = false;
+    });
+    
+    imageArea.addEventListener('mouseleave', function() {
+        isDrawing = false;
+    });
+    
+    imageArea.addEventListener('touchstart', function(e) {
+        isDrawing = true;
+        const touch = e.touches[0];
+        const rect = imageArea.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        createSlime(x, y);
+        lastX = x;
+        lastY = y;
+    });
+    
+    imageArea.addEventListener('touchmove', function(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        
+        const touch = e.touches[0];
+        const rect = imageArea.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        
+        const distance = Math.sqrt(Math.pow(x - lastX, 2) + Math.pow(y - lastY, 2));
+        
+        if (distance > 15) {
+            createSlime(x, y);
+            lastX = x;
+            lastY = y;
+        }
+    });
+    
+    imageArea.addEventListener('touchend', function() {
+        isDrawing = false;
     });
 }
 </script>
