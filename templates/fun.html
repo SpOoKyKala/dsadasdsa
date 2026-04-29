@@ -3,22 +3,6 @@
 {% block title %}Раздел "Прикол"{% endblock %}
 
 {% block extra_css %}
-.spotlight {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0;
-    background: rgba(255, 255, 255, 0.8);
-    transition: opacity 0.1s ease;
-}
-.spotlight.active {
-    opacity: 1;
-    pointer-events: auto;
-}
 .fun-container {
     text-align: center;
 }
@@ -33,6 +17,7 @@
     display: inline-block;
     cursor: crosshair;
     max-width: 100%;
+    overflow: hidden;
 }
 .image-area img {
     max-width: 100%;
@@ -40,6 +25,28 @@
     border-radius: var(--radius-lg);
     user-select: none;
     -webkit-user-drag: none;
+    pointer-events: none;
+}
+.splash {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    filter: blur(15px);
+    pointer-events: none;
+    animation: spread 1s ease-out forwards;
+}
+@keyframes spread {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
 }
 {% endblock %}
 
@@ -59,43 +66,47 @@
     
     {% if image %}
     <div class="card">
-        <h3>Нажмите на фото!</h3>
-        <p style="color: var(--gray-600); margin-bottom: 15px;">Нажимайте в любом месте - появится подсветка</p>
-        <div class="image-area" id="imageArea">
+        <h3>Нажимайте на фото!</h3>
+        <p style="color: var(--gray-600); margin-bottom: 15px;">Нажимайте в любом месте - появится пятно</p>
+        <div class="image-area" id="imageArea" style="position: relative;">
             <img src="{{ url_for('static', filename='uploads/' + image) }}" id="funImage" draggable="false">
         </div>
     </div>
     {% endif %}
 </div>
-
-<div class="spotlight" id="spotlight"></div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 const imageArea = document.getElementById('imageArea');
-const spotlight = document.getElementById('spotlight');
-const funImage = document.getElementById('funImage');
 
-if (imageArea && spotlight) {
-    imageArea.addEventListener('mousedown', function(e) {
-        spotlight.classList.add('active');
-        spotlight.style.top = '0';
-        spotlight.style.left = '0';
-        spotlight.style.width = '100%';
-        spotlight.style.height = '100%';
-    });
+function createSplash(x, y) {
+    const splash = document.createElement('div');
+    splash.className = 'splash';
     
-    document.addEventListener('mouseup', function() {
-        spotlight.classList.remove('active');
-    });
+    const size = 50 + Math.random() * 50;
+    splash.style.width = size + 'px';
+    splash.style.height = size + 'px';
+    splash.style.left = (x - size/2) + 'px';
+    splash.style.top = (y - size/2) + 'px';
     
-    funImage.addEventListener('dragstart', function(e) {
-        e.preventDefault();
-    });
+    imageArea.appendChild(splash);
     
-    funImage.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
+    setTimeout(() => {
+        splash.remove();
+    }, 1000);
+}
+
+if (imageArea) {
+    imageArea.addEventListener('click', function(e) {
+        const rect = imageArea.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        createSplash(x, y);
+        
+        setTimeout(() => createSplash(x + 10, y + 10), 100);
+        setTimeout(() => createSplash(x - 10, y + 5), 200);
     });
 }
 </script>
