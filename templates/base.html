@@ -3,65 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ГАУСО СО КЦСОН Артёмовский район{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        {% block extra_css %}{% endblock %}
-    </style>
+    <title>{% block title %}ТО и РКС{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='uploads/image-Photoroom.png') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
 </head>
-<body>
-    {% if session.get('user_id') %}
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <a href="{{ url_for('index') }}" class="logo">
-                    <div class="logo-icon">Ц</div>
-                    <span>Портал адаптации ГАУСО СО КЦСОН</span>
-                </a>
-                <nav>
-                    <a href="/" class="{{ 'active' if request.endpoint == 'index' else '' }}">Главная</a>
-                    <a href="{{ url_for('fun') }}" class="{{ 'active' if request.endpoint == 'fun' else '' }}">Прикол</a>
-                    {% if g.user and g.user.role == 'admin' %}
-                    <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' else '' }}">Админ-панель</a>
-                    {% endif %}
+<body class="text-slate-800 min-h-screen">
+    {% block header %}
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <img src="{{ url_for('static', filename='uploads/image-Photoroom.png') }}" class="w-10 h-10 rounded-lg object-contain bg-white">
+                    <div>
+                        <h1 class="text-lg font-bold text-slate-900">ТО и РКС</h1>
+                        <p class="text-xs text-slate-500">Дипломный проект</p>
+                    </div>
+                </div>
+                <nav class="flex items-center gap-4">
+                    {% block nav %}{% endblock %}
                 </nav>
-                <div class="user-menu">
-                    <a href="{{ url_for('profile') }}">
-                        <div class="user-avatar">{{ g.user.full_name[0] if g.user and g.user.full_name else 'U' }}</div>
-                        <span>{{ g.user.full_name if g.user and g.user.full_name else session.get('username', 'Пользователь') }}</span>
+                <div class="flex items-center gap-3">
+                    {% if session.get('user_id') %}
+                    <span class="text-sm text-slate-600">Привет, {{ session.get('username', 'Студент') }}</span>
+                    {% if session.get('is_admin') %}
+                    <a href="{{ url_for('admin') }}" class="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-sm font-medium hover:bg-red-200 transition">
+                        <i data-lucide="shield" class="w-4 h-4 inline mr-1"></i> Админ
                     </a>
-                    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">Выход</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="text-slate-500 hover:text-slate-700 transition text-sm">Выйти</a>
+                    {% endif %}
+                    <button onclick="openProfileModal()" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-lg transition">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        <span id="headerName" class="text-sm font-medium">{{ session.get('username', 'Студент') if session.get('user_id') else 'Студент' }}</span>
+                    </button>
                 </div>
             </div>
         </div>
+        <div class="h-1 bg-slate-100">
+            <div id="globalProgress" class="h-full bg-blue-600 progress-fill" style="width: 0%"></div>
+        </div>
     </header>
-    {% endif %}
+    {% endblock %}
+
+    {% block main %}{% endblock %}
+
+    {% block modals %}{% endblock %}
+
+    {% block scripts %}{% endblock %}
     
-    <main>
-        <div class="container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        <span>{{ message }}</span>
-                    </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            
-            {% block content %}{% endblock %}
-        </div>
-    </main>
-    
-    {% if session.get('user_id') %}
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 ГАУСО СО &laquo;Комплексный центр социального обслуживания&raquo; Артёмовского района</p>
-        </div>
-    </footer>
-    {% endif %}
-    
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    {% block extra_js %}{% endblock %}
+    <script>
+        function doReplaceIcons() {
+            if (typeof replaceIcons === 'function') {
+                replaceIcons();
+            } else {
+                setTimeout(doReplaceIcons, 200);
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', doReplaceIcons);
+        } else {
+            doReplaceIcons();
+        }
+        window.addEventListener('load', function() { doReplaceIcons(); });
+    </script>
 </body>
 </html>

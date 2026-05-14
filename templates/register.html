@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход - ТО и РКС</title>
+    <title>Регистрация - ТО и РКС</title>
     <link rel="icon" href="{{ url_for('static', filename='uploads/image-Photoroom.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -26,26 +26,26 @@
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
             <div class="text-center mb-8">
                 <img src="{{ url_for('static', filename='uploads/image-Photoroom.png') }}" class="w-16 h-16 mx-auto rounded-xl object-contain mb-4">
-                <h1 class="text-2xl font-bold text-slate-900">Вход в систему</h1>
-                <p class="text-slate-500 mt-1">Техническое обслуживание и ремонт ПК</p>
+                <h1 class="text-2xl font-bold text-slate-900">Регистрация</h1>
+                <p class="text-slate-500 mt-1">Создайте свой аккаунт</p>
             </div>
             
-            <form action="/login" method="POST" class="space-y-4">
+            <form action="/register" method="POST" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Имя пользователя</label>
-                    <input type="text" name="username" required class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Введите имя">
+                    <input type="text" name="username" required minlength="3" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Придумайте логин">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Пароль</label>
-                    <input type="password" name="password" required class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Введите пароль">
+                    <input type="password" name="password" required minlength="4" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Минимум 4 символа">
                 </div>
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition">
-                    Войти
+                    Зарегистрироваться
                 </button>
             </form>
             
             <p class="text-center text-sm text-slate-500 mt-6">
-                Нет аккаунта? <a href="/register" class="text-blue-600 hover:underline">Зарегистрироваться</a>
+                Уже есть аккаунт? <a href="/login" class="text-blue-600 hover:underline">Войти</a>
             </p>
         </div>
     </main>
